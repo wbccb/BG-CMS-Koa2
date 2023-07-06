@@ -10,6 +10,14 @@ class HttpException extends Error {
         this.code = code || 400;
         this.errorCode = errorCode || 10000;
     }
+
+    getData() {
+        return {
+            code: this.code,
+            msg: this.msg,
+            errorCode: this.errorCode
+        }
+    }
 }
 
 class ParameterException extends HttpException {

@@ -3,9 +3,9 @@ module.exports = {
     database: {
         dbName: "",
         host: "",
-        port: 3300,
+        port: 3306,
         use: "root",
-        password: "12345",
+        password: "123456",
     },
     security: {
         secretKey: "abcdefg", // token加密的密钥

@@ -297,4 +297,7 @@ class CommonValidator {
     }
 }
 
-module.exports = CommonValidator;
+module.exports = {
+    CommonValidator,
+    Rule
+};
