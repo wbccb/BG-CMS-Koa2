@@ -27,6 +27,7 @@
     "mysql2": "^3.3.3",
     "prettier": "^2.8.8",
     "pug": "^2.0.3",
+    "require-directory": "^2.1.1",
     "sequelize": "^6.32.0",
     "validator": "^10.11.0"
   },

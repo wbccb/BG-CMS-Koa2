@@ -63,5 +63,6 @@ module.exports = {
     NotFoundException,
     AuthFailedException,
     ForbiddenException,
-    Success
+    Success,
+    HttpException
 }
