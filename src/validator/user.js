@@ -1,13 +1,12 @@
-const {CommonValidator, Rule} = require("../lib/common-validator");
+const {CommonValidator, Rule, RuleResult} = require("../lib/common-validator");
+const User = require("../models/user");
 
 class RegisterValidator extends CommonValidator {
     constructor() {
         super();
-
         this.email = [new Rule("isEmail", "电子邮箱格式不符合规范")];
-
         this.password1 = [
-            new Rule("isLength", "密码至少6个字符，最多22个字符",        {
+            new Rule("isLength", "密码至少6个字符，最多22个字符", {
                 min: 6,
                 max: 22,
             }),
@@ -15,34 +14,39 @@ class RegisterValidator extends CommonValidator {
         ];
         this.password2 = this.password1;
         this.nickName = [
-            new Rule("isLength", "昵称长度必须在4~32之间",{
+            new Rule("isLength", "昵称长度必须在4~32之间", {
                 min: 4,
                 max: 32,
-            })
+            }),
         ];
+
+        this.validateEmail = async function (ctx) {
+            const email = ctx.body.email;
+            const user = await User.findOne({
+                where: {
+                    email,
+                },
+            });
+            if (user) {
+                return RuleResult.getErrorMsg("邮箱已被注册，请重新输入邮箱", "email");
+            }
+            return RuleResult.getSuccessMsg();
+        };
+        this.validatePassword = async function (ctx) {
+            const password1 = ctx.body.password1;
+            const password2 = ctx.body.password2;
+            if (password1 !== password2) {
+                return RuleResult.getErrorMsg("两次输入的密码不一致，请重新输入", "password");
+            }
+            return RuleResult.getSuccessMsg();
+        };
     }
 
-    async validatePassword(ctx) {
-        const password1 = ctx.body.password1;
-        const password2 = ctx.body.password2;
-        if (password1 !== password2) {
-            throw new Error("两次输入的密码不一致，请重新输入");
-        }
-    }
+    async validatePassword(ctx) {}
 
-    async validateEmail(ctx) {
-        const email = ctx.body.email;
-        const user = await User.findOne({
-            where: {
-                email,
-            },
-        });
-        if (user) {
-            throw new Error("邮箱已被注册，请重新输入邮箱");
-        }
-    }
+    async validateEmail(ctx) {}
 }
 
 module.exports = {
-    RegisterValidator
-}
+    RegisterValidator,
+};

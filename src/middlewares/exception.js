@@ -18,7 +18,6 @@ const catchError = async (ctx, next) => {
         await next();
     } catch (e) {
         // 开发环境，直接throw
-        debugger;
 
         const isHttpException = e instanceof HttpException;
         const isDev = global.config.environment === "dev";
@@ -27,7 +26,21 @@ const catchError = async (ctx, next) => {
             throw e;
         }
 
-        throw e;
+        if (isHttpException) {
+            ctx.body = {
+                msg: e.msg,
+                error_code: e.errorCode,
+                request: `${ctx.method} ${ctx.path}`,
+            };
+            ctx.status = e.code;
+        } else {
+            ctx.body = {
+                msg: "未知错误！",
+                error_code: 9999,
+                request: `${ctx.method} ${ctx.path}`,
+            };
+            ctx.status = 500;
+        }
 
         // 生产环境，返回错误码以及原因
     }

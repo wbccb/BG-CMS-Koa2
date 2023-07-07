@@ -15,7 +15,7 @@ function getAllMethodNames(obj, options) {
     const methods = new Set();
 
     // 检测是否是箭头函数
-    if(Reflect.getPrototypeOf(obj)) {
+    if (Reflect.getPrototypeOf(obj)) {
         let keys = Reflect.ownKeys(obj);
         keys.forEach(key => {
             methods.add(key);

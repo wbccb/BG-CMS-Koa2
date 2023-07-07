@@ -1,7 +1,17 @@
-const { cloneDeep, isArray, unset, isEmpty, get, last } = require("lodash");
-const { ParameterException } = require("./http-exception");
-const { getAllfieldNames, getAllMethodNames } = require("./util");
+const {cloneDeep, isArray, unset, isEmpty, get, last} = require("lodash");
+const {ParameterException} = require("./http-exception");
+const {getAllfieldNames, getAllMethodNames} = require("./util");
 const validator = require("validator");
+
+class RuleResult {
+    static getSuccessMsg(key = "", msg = "") {
+        return [true, key, msg];
+    }
+
+    static getErrorMsg(key, msg) {
+        return [false, key, msg];
+    }
+}
 
 class Rule {
     constructor(name, msg, ...options) {
@@ -59,7 +69,6 @@ class Rule {
                 return validator[this.name](value, this.options);
         }
     }
-
 }
 
 class CommonValidator {
@@ -91,17 +100,16 @@ class CommonValidator {
         const checkParamsResult = await this.checkRules();
         if (!checkParamsResult) {
             // 参数校验不通过
-            let errorObj = {};
             if (this.errors.length === 1) {
-                errorObj = this.errors[0].message;
-            } else {
-                for (const item of this.errors) {
-                    errorObj[item.key] = item.message;
-                }
+                throw new ParameterException(this.errors[0].message);
+                return;
             }
-            throw new ParameterException({
-                message: errorObj,
-            });
+
+            let errorObj = {};
+            for (const item of this.errors) {
+                errorObj[item.key] = item.message;
+            }
+            throw new ParameterException(JSON.stringify(errorObj));
         }
 
         ctx.v = this;
@@ -133,6 +141,10 @@ class CommonValidator {
                 value.forEach((item) => {
                     if (!(item instanceof Rule)) {
                         // 如果是数组，并且存在不是Rule，应该报错
+                        this.errors.push({
+                            errorKey: key,
+                            message: key + "为数组类型的话，每一个item都必须是Rule类型",
+                        });
                         throw new Error(key + "为数组类型的话，每一个item都必须是Rule类型");
                     }
                 });
@@ -154,9 +166,13 @@ class CommonValidator {
         // 开始进行每一个key进行检验！根据规则进行验证Rule.validate()
         await this.checkStringRules(keys);
 
+        if (this.errors.length > 0) {
+            return false;
+        }
+
         // 自定义的检验方法执行
         const validateFunctionNames = getAllMethodNames(this, {
-            filter: function (key) {
+            filter: (key) => {
                 // 方法 并且 是以validate开头的
                 return /validate([A-Z])\w+/g.test(key) && typeof this[key] === "function";
             },
@@ -232,11 +248,11 @@ class CommonValidator {
             }
 
             for (const rule of rules) {
-                const errorMessageArray = [];
+                let errorMessage = "";
                 if (!stopFlag && !rule.optional) {
                     const ruleResult = await rule.validate(requestValue);
                     if (!ruleResult) {
-                        errorMessageArray.push(rule.message);
+                        errorMessage = rule.msg;
                         stopFlag = true; // 不用进行下一个规则的验证了！
                     }
                 }
@@ -245,10 +261,10 @@ class CommonValidator {
                     // TODO 如果有解析成功的值，赋值给this.parsed?
                     this.parsed[requestKey][key] = rule.parsedValue;
                 }
-                if (errorMessageArray.length > 0) {
+                if (errorMessage) {
                     this.errors.push({
                         key,
-                        message: errorMessageArray,
+                        message: errorMessage,
                     });
                 }
             }
@@ -313,4 +329,5 @@ class CommonValidator {
 module.exports = {
     CommonValidator,
     Rule,
+    RuleResult,
 };
