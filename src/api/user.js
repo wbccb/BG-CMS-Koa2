@@ -18,22 +18,16 @@ router.post("/register", async (ctx) => {
     const user = {
         email: res.get("body.email"),
         password: res.get("body.password2"),
-        nickname: res.get("body.nickname"),
+        nickname: res.get("body.nickName"),
     };
+
+    console.log(JSON.stringify(user));
 
     // 数据库插入行数据
-    // const databaseRes = await User.create(user);
+    await User.create(user);
 
+    // 第三步：返回结果
     ctx.body = new Success().getData();
-    // 第三步：返回结果
-});
-
-router.get("/test", async (ctx) => {
-
-    // 第三步：返回结果
-    ctx.body = {
-        code: 0,
-    };
 });
 
 module.exports = router;

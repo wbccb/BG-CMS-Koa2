@@ -110,8 +110,10 @@ class CommonValidator {
                 errorObj[item.key] = item.message;
             }
             throw new ParameterException(JSON.stringify(errorObj));
+            console.log("最终validate抛出错误");
         }
 
+        console.log("最终validate仍然return");
         ctx.v = this;
         return this;
     }
@@ -185,20 +187,16 @@ class CommonValidator {
             if (!validateResultObj) {
                 // 没有返回检验信息，说明方法实现不充分
                 const errorKey = validateFnName.replace("validate", "");
-                this.errors.push({
-                    errorKey,
-                    message: "校验方法错误，参数错误",
-                });
+                const errorException = new ParameterException("校验方法错误，参数错误", errorKey);
+                this.errors.push(errorException.getData());
             } else {
                 // 自定义校验函数，第一个参数是校验是否成功，第二个参数为错误信息
                 let validateResult = validateResultObj[0];
                 let validateMessage = validateResultObj[1];
                 let errorKey = validateResultObj[2] || validateFnName.replace("validate", "");
                 if (!validateResult) {
-                    this.errors.push({
-                        errorKey,
-                        message: validateMessage,
-                    });
+                    const errorException = new ParameterException(validateMessage, errorKey);
+                    this.errors.push(errorException.getData());
                 } else {
                     // 成功！
                 }
@@ -237,10 +235,9 @@ class CommonValidator {
                 }
 
                 if (!optional) {
-                    this.errors.push({
-                        key,
-                        message: message || `${key}不能为空`,
-                    });
+                    this.errors.push(
+                        new ParameterException(message || `${key}不能为空`, key).getData()
+                    );
                 } else {
                     this.parsed["default"][key] = defaultValue;
                 }
