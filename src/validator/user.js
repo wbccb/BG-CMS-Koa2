@@ -47,6 +47,25 @@ class RegisterValidator extends CommonValidator {
     async validateEmail(ctx) {}
 }
 
+class LoginValidator extends CommonValidator {
+    constructor() {
+        super();
+        this.email = [new Rule("isEmail", "电子邮箱格式不符合规范")];
+        this.password = [
+            new Rule("isLength", "密码至少6个字符，最多22个字符", {
+                min: 6,
+                max: 22,
+            }),
+            new Rule("matches", "密码长度必须在6~22位之间，包含字符、数字和 _ "),
+        ];
+
+        this.validateLoginType = async (value) => {
+            // TODO 检测传来的值是否有type属性
+        };
+    }
+}
+
 module.exports = {
     RegisterValidator,
+    LoginValidator,
 };

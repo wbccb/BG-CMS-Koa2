@@ -4,8 +4,15 @@
 const basicAuth = require("basic-auth");
 const jwt = require("jsonwebtoken");
 
-class Auth {
-    constructor() {}
+class TokenCheck {
+
+    static AUSE = 8
+    static ADMIN = 16
+    static SPUSER_ADMIN = 32
+
+    constructor() {
+
+    }
 
     get m() {
         return async (ctx, next) => {
@@ -30,3 +37,5 @@ class Auth {
         };
     }
 }
+
+module.exports = TokenCheck;

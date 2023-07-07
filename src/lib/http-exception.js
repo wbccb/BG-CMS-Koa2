@@ -8,6 +8,7 @@ class HttpException extends Error {
         super();
         this.message = message || "服务器异常";
         this.code = code || 500;
+        this.data = {};
     }
 
     getData() {
@@ -19,7 +20,7 @@ class HttpException extends Error {
         const obj = {
             code: this.code,
             message: this.message,
-            data: {}
+            data: this.data
         }
         if(this.errorKey) {
             obj.data.errorKey = this.errorKey;
@@ -63,10 +64,11 @@ class ForbiddenException extends HttpException {
 }
 
 class Success extends HttpException {
-    constructor(message) {
+    constructor(message, data) {
         super();
         this.code = 201;
         this.message = message || "成功";
+        this.data = data;
     }
 }
 

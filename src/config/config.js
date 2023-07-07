@@ -10,5 +10,5 @@ module.exports = {
     security: {
         secretKey: "abcdefg", // token加密的密钥
         expiresIn: 60 * 60,
-    },
+    }
 };
