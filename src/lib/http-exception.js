@@ -8,7 +8,6 @@ class HttpException extends Error {
         super();
         this.message = message || "服务器异常";
         this.code = code || 500;
-        this.errorCode = errorCode || 10000;
     }
 
     getData() {
@@ -17,59 +16,68 @@ class HttpException extends Error {
         // code:
         // path:
         // method:
-        return {
+        const obj = {
             code: this.code,
             message: this.message,
-            errorCode: this.errorCode
+            data: {}
         }
+        if(this.errorKey) {
+            obj.data.errorKey = this.errorKey;
+        }
+        return obj;
     }
 }
 
 class ParameterException extends HttpException {
-    constructor(message, errorCode) {
+    constructor(message, errorKey) {
         super();
         this.code = 400;
         this.message = message || "参数错误";
-        this.errorCode = errorCode || 10000;
+        this.errorKey = errorKey;
     }
 }
 
+
 class NotFoundException extends HttpException {
-    constructor(message, errorCode) {
+    constructor(message) {
         super();
         this.code = 404;
         this.message = message || "资源未找到";
-        this.errorCode = errorCode || 10000;
     }
 }
 
 class AuthFailedException extends HttpException {
-    constructor(message, errorCode) {
+    constructor(message) {
         super();
         this.code = 401;
         this.message = message || "授权失败";
-        this.errorCode = errorCode || 10004;
     }
 }
 
 class ForbiddenException extends HttpException {
-    constructor(message, errorCode) {
+    constructor(message) {
         super();
         this.code = 403;
         this.message = message || "禁止访问";
-        this.errorCode = errorCode || 10006;
     }
 }
 
 class Success extends HttpException {
-    constructor(message, errorCode) {
+    constructor(message) {
         super();
         this.code = 201;
         this.message = message || "成功";
-        this.errorCode = errorCode || 0;
     }
 }
 
+class OtherException extends HttpException {
+    constructor(message, errorKey) {
+        super();
+        this.code = 500;
+        this.message = message || "服务器错误";
+        this.errorKey = errorKey;
+    }
+}
 
 module.exports = {
     ParameterException,
@@ -77,5 +85,6 @@ module.exports = {
     AuthFailedException,
     ForbiddenException,
     Success,
-    HttpException
+    HttpException,
+    OtherException
 }

@@ -1,15 +1,23 @@
 const {cloneDeep, isArray, unset, isEmpty, get, last} = require("lodash");
-const {ParameterException} = require("./http-exception");
+const {ParameterException, OtherException} = require("./http-exception");
 const {getAllfieldNames, getAllMethodNames} = require("./util");
 const validator = require("validator");
 
 class RuleResult {
-    static getSuccessMsg(key = "", msg = "") {
-        return [true, key, msg];
+    static getSuccessMsg(msg = "", key = "") {
+        return {
+            result: true,
+            message: msg,
+            key: key,
+        };
     }
 
-    static getErrorMsg(key, msg) {
-        return [false, key, msg];
+    static getErrorMsg(msg, key) {
+        return {
+            result: false,
+            message: msg,
+            key: key,
+        };
     }
 }
 
@@ -101,15 +109,15 @@ class CommonValidator {
         if (!checkParamsResult) {
             // 参数校验不通过
             if (this.errors.length === 1) {
-                throw new ParameterException(this.errors[0].message);
+                throw this.errors[0];
                 return;
             }
 
             let errorObj = {};
             for (const item of this.errors) {
-                errorObj[item.key] = item.message;
+                errorObj[item.errorKey] = item;
             }
-            throw new ParameterException(JSON.stringify(errorObj));
+            throw errorObj;
             console.log("最终validate抛出错误");
         }
 
@@ -143,10 +151,7 @@ class CommonValidator {
                 value.forEach((item) => {
                     if (!(item instanceof Rule)) {
                         // 如果是数组，并且存在不是Rule，应该报错
-                        this.errors.push({
-                            errorKey: key,
-                            message: key + "为数组类型的话，每一个item都必须是Rule类型",
-                        });
+                        this.errors.push(new OtherException(key + "为数组类型的话，每一个item都必须是Rule类型", "", key));
                         throw new Error(key + "为数组类型的话，每一个item都必须是Rule类型");
                     }
                 });
@@ -172,36 +177,7 @@ class CommonValidator {
             return false;
         }
 
-        // 自定义的检验方法执行
-        const validateFunctionNames = getAllMethodNames(this, {
-            filter: (key) => {
-                // 方法 并且 是以validate开头的
-                return /validate([A-Z])\w+/g.test(key) && typeof this[key] === "function";
-            },
-        });
-
-        for (const validateFnName of validateFunctionNames) {
-            // 自定义检验方法
-            const validateFn = get(this, validateFnName);
-            let validateResultObj = await validateFn.call(this, this.data);
-            if (!validateResultObj) {
-                // 没有返回检验信息，说明方法实现不充分
-                const errorKey = validateFnName.replace("validate", "");
-                const errorException = new ParameterException("校验方法错误，参数错误", errorKey);
-                this.errors.push(errorException.getData());
-            } else {
-                // 自定义校验函数，第一个参数是校验是否成功，第二个参数为错误信息
-                let validateResult = validateResultObj[0];
-                let validateMessage = validateResultObj[1];
-                let errorKey = validateResultObj[2] || validateFnName.replace("validate", "");
-                if (!validateResult) {
-                    const errorException = new ParameterException(validateMessage, errorKey);
-                    this.errors.push(errorException.getData());
-                } else {
-                    // 成功！
-                }
-            }
-        }
+        await this.checkFnRules(keys);
 
         return this.errors.length === 0;
     }
@@ -236,7 +212,7 @@ class CommonValidator {
 
                 if (!optional) {
                     this.errors.push(
-                        new ParameterException(message || `${key}不能为空`, key).getData()
+                        new ParameterException(message || `${key}不能为空`, "", key)
                     );
                 } else {
                     this.parsed["default"][key] = defaultValue;
@@ -259,10 +235,47 @@ class CommonValidator {
                     this.parsed[requestKey][key] = rule.parsedValue;
                 }
                 if (errorMessage) {
-                    this.errors.push({
-                        key,
-                        message: errorMessage,
-                    });
+                    this.errors.push(
+                        new ParameterException(errorMessage, "", key)
+                    );
+                }
+            }
+        }
+    }
+
+    async checkFnRules(keys) {
+        // 自定义的检验方法执行
+        const validateFunctionNames = getAllMethodNames(this, {
+            filter: (key) => {
+                // 方法 并且 是以validate开头的
+                return /validate([A-Z])\w+/g.test(key) && typeof this[key] === "function";
+            },
+        });
+
+        for (const validateFnName of validateFunctionNames) {
+            // 自定义检验方法
+            const validateFn = get(this, validateFnName);
+            let validateResultObj = await validateFn.call(this, this.data);
+            if (!validateResultObj) {
+                // 校验方法有问题，直接报错！
+                const errorKey = validateFnName.replace("validate", "");
+                const errorException = new OtherException(
+                    "validateFunction应该返回值",
+                    "",
+                    errorKey
+                );
+                this.errors.push(errorException);
+            } else {
+                // 自定义校验函数，第一个参数是校验是否成功，第二个参数为错误信息
+                let validateResult = validateResultObj.result;
+                let validateMessage = validateResultObj.message;
+                let errorKey = validateResultObj.key || validateFnName.replace("validate", "");
+                if (!validateResult) {
+                    // 校验失败！
+                    const errorException = new ParameterException(validateMessage, errorKey);
+                    this.errors.push(errorException);
+                } else {
+                    // 成功！
                 }
             }
         }

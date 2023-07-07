@@ -2,7 +2,7 @@ require("module-alias/register");
 
 const Koa = require("koa");
 const parser = require("koa-bodyparser");
-const catchError = require("./middlewares/exception");
+const catchError = require("./middlewares/response-handle-error");
 const InitManager = require("./init");
 
 const app = new Koa();

@@ -22,23 +22,36 @@ const catchError = async (ctx, next) => {
 
         const isHttpException = e instanceof HttpException;
         const isDev = global.config.environment === "dev";
-        console.error("全局catchError", e.toString());
-        if (isDev && !isHttpException) {
-            throw e;
-        }
+        console.error("全局catchError", JSON.stringify(e));
+        // if (isDev && !isHttpException) {
+        //     throw e;
+        // }
 
+
+
+        // {
+        //     "code": 200,
+        //     "message": "OK",
+        //     "data": {
+        //
+        // }
+
+        debugger;
         if (isHttpException) {
-            ctx.body = {
-                msg: e.msg,
-                error_code: e.errorCode,
-                request: `${ctx.method} ${ctx.path}`,
-            };
+            // status可以告诉浏览器返回值的类型
             ctx.status = e.code;
+            // 浏览器解析的是这个res.data，也就是body的值
+            ctx.body = {
+                code: e.code,
+                message: e.message,
+                data: e.data || {}
+            }
         } else {
             ctx.body = {
-                msg: "未知错误！",
-                error_code: 9999,
+                code: 500,
+                message: "未知错误！",
                 request: `${ctx.method} ${ctx.path}`,
+                test: false
             };
             ctx.status = 500;
         }

@@ -1,7 +1,7 @@
 const {mySequelize} = require("../lib/my-sequelize");
 const {Sequelize, Model, DataTypes} = require("sequelize");
 
-// const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 /**
  * Model就是直接的数据库操作
@@ -23,13 +23,13 @@ User.init(
         },
         password: {
             type: Sequelize.STRING,
-            // set(val) {
-            //     // 加密
-            //     const salt = bcrypt.genSaltSync(10);
-            //     // 生成加密密码
-            //     const psw = bcrypt.hashSync(val, salt);
-            //     this.setDataValue("password", psw);
-            // },
+            set(val) {
+                // 加密
+                const salt = bcrypt.genSaltSync(10);
+                // 生成加密密码
+                const psw = bcrypt.hashSync(val, salt);
+                this.setDataValue("password", psw);
+            }
         }
     },
     {
