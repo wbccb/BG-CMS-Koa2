@@ -2,7 +2,6 @@ const Router = require("koa-router");
 const requireDirectory = require("require-directory");
 
 class InitManager {
-
     /**
      * 初始化全局对象
      * @param app
@@ -14,25 +13,28 @@ class InitManager {
         InitManager.loadConfig();
     }
 
-
     /**
      * 自动读取文件夹，自动适配路由
      */
     static loadRouters() {
-
+        // try {
         function whenLoadModule(obj) {
             // 判断加载的是否是路由
-            if(obj instanceof Router) {
+            if (obj instanceof Router) {
+                console.log(obj);
                 InitManager.app.use(obj.routes());
             }
         }
 
         // TODO 生产环境如何区分？？
-        const routerDir = `${process.cwd()}/src/app/api`;
+        const routerDir = `${process.cwd()}/src/api`;
         // 自动获取该目录下所有的module.exports，判断是否是路由
         requireDirectory(module, routerDir, {
-            visit:  whenLoadModule
+            visit: whenLoadModule,
         });
+        // } catch (e) {
+        //     console.error(e);
+        // }
     }
 
     /**

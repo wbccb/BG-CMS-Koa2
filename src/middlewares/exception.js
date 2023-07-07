@@ -18,9 +18,16 @@ const catchError = async (ctx, next) => {
         await next();
     } catch (e) {
         // 开发环境，直接throw
+        debugger;
 
-        global.err
+        const isHttpException = e instanceof HttpException;
+        const isDev = global.config.environment === "dev";
+        console.error("全局catchError", e.toString());
+        if (isDev && !isHttpException) {
+            throw e;
+        }
 
+        throw e;
 
         // 生产环境，返回错误码以及原因
     }

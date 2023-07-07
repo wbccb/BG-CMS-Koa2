@@ -7,7 +7,7 @@ class HttpException extends Error {
     constructor(msg, errorCode, code) {
         super();
         this.msg = msg || "服务器异常";
-        this.code = code || 400;
+        this.code = code || 500;
         this.errorCode = errorCode || 10000;
     }
 

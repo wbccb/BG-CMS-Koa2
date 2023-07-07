@@ -1,4 +1,4 @@
-const Sequelize = require("sequelize");
+const {Sequelize} = require("sequelize");
 
 const {dbName, host, port, user, password} = require("../config/config").database;
 
@@ -27,7 +27,7 @@ const mySequelize = new Sequelize(dbName, user, password, {
 });
 
 mySequelize.sync({
-    force: false,
+    force: true,
 });
 module.exports = {
     mySequelize,

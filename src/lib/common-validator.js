@@ -1,7 +1,7 @@
-const {cloneDeep, isArray, unset, isEmpty} = require("lodash");
-const {ParameterException} = require("./http-exception");
-const {getAllfieldNames, getAllMethodNames} = require("./util");
-const {validator} = require("validator");
+const { cloneDeep, isArray, unset, isEmpty, get, last } = require("lodash");
+const { ParameterException } = require("./http-exception");
+const { getAllfieldNames, getAllMethodNames } = require("./util");
+const validator = require("validator");
 
 class Rule {
     constructor(name, msg, ...options) {
@@ -35,7 +35,6 @@ class Rule {
                     this.parsedValue = value;
                     return validator.isInt(String(value), this.options);
                 }
-                break;
             case "isFloat":
                 if (typeof value === "string") {
                     this.parsedValue = validator.toFloat(value);
@@ -44,7 +43,6 @@ class Rule {
                     this.parsedValue = value;
                     return validator.isFloat(String(value), this.options);
                 }
-                break;
             case "isBoolean":
                 if (typeof value === "string") {
                     this.parsedValue = validator.toBoolean(value);
@@ -53,16 +51,15 @@ class Rule {
                     this.parsedValue = value;
                     return validator.isBoolean(String(value), this.options);
                 }
-                break;
             case "isNotEmpty":
                 // TODO 自定实现是否为空的判断
-
-                break;
+                console.error("isNotEmpty还没实现");
+                return false;
             default:
-                validator[this.name](value, this.options);
-                break;
+                return validator[this.name](value, this.options);
         }
     }
+
 }
 
 class CommonValidator {
@@ -121,7 +118,7 @@ class CommonValidator {
     }
 
     async checkRules() {
-        const filter = function (key) {
+        const filter = (key) => {
             // 校验器是直接this.key1 = new Rule("isNotEmpty", "必须传入搜索关键字");
             // 因此需要遍历所有key，检测是否属于new Rule()
             const value = this[key];
@@ -130,13 +127,13 @@ class CommonValidator {
                     return false;
                 }
 
+                console.log(JSON.stringify(value));
                 // 抛出异常可以终止forEach循环
                 // return false/true只能终止本次执行，不能终止循环
-                const value = [1, 2, 3];
                 value.forEach((item) => {
                     if (!(item instanceof Rule)) {
                         // 如果是数组，并且存在不是Rule，应该报错
-                        throw new Error("数组类型的话，每一个item都必须是Rule类型");
+                        throw new Error(key + "为数组类型的话，每一个item都必须是Rule类型");
                     }
                 });
 
@@ -295,9 +292,25 @@ class CommonValidator {
 
         return [];
     }
+
+    get(path, parsed = true) {
+        if (parsed) {
+            const value = get(this.parsed, path, null);
+            if (value == null) {
+                // 如果从this.parsed找不到对应的数据，则去default，也就是optional=true
+                // 寻找是否有默认值
+                const keys = path.split(".");
+                const key = last(keys);
+                return get(this.parsed.default, key);
+            }
+            return value;
+        } else {
+            return get(this.data, path);
+        }
+    }
 }
 
 module.exports = {
     CommonValidator,
-    Rule
+    Rule,
 };

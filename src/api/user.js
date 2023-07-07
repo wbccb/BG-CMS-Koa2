@@ -23,6 +23,17 @@ router.post("/register", async (ctx) => {
     // 数据库插入行数据
     const databaseRes = await User.create(user);
 
+    ctx.body = new Success().getData();
     // 第三步：返回结果
-    ctx.success(Success.getData());
 });
+
+router.get("/test", async (ctx) => {
+    debugger;
+
+    // 第三步：返回结果
+    ctx.body = {
+        code: 0,
+    };
+});
+
+module.exports = router;
