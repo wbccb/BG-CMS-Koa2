@@ -3,9 +3,10 @@
  */
 
 const Router = require("koa-router");
-const { RegisterValidator } = require("../validator/user");
+const {RegisterValidator, LoginValidator} = require("../validator/user");
 const User = require("../models/user");
-const { Success } = require("../lib/http-exception");
+const {Success, AuthFailedException} = require("../lib/http-exception");
+const {TokenCheck} = require("../middlewares/token-check");
 const router = new Router({
     prefix: "/user",
 });
@@ -24,10 +25,39 @@ router.post("/register", async (ctx) => {
     console.log(JSON.stringify(user));
 
     // 数据库插入行数据
+    // set password会自动进行加密操作
     await User.create(user);
 
     // 第三步：返回结果
     ctx.body = new Success().getData();
+});
+
+router.post("/login", async (ctx) => {
+    // 进行token的检测
+
+    const result = await new LoginValidator().validator(ctx);
+
+    // 根据邮箱和密码进行校验是否正确
+    const email = result.get("body.email");
+    const password = result.get("body.password");
+
+    const user = await User.verifyUserByPassword(email, password);
+
+    // 如果校验通过，则生成token，存储并发放给用户
+    if (user) {
+        const token = User.generateToken(user.id, TokenCheck.AUSE);
+        const response = new Success("登录成功", {
+            token,
+        });
+        ctx.status = 201;
+        ctx.body = response.getData();
+        return;
+    }
+
+    // 登录失败，则返回对应的状态码
+    const errorException = new AuthFailedException("登录失败");
+    ctx.status = errorException.getData().code;
+    ctx.body = errorException.getData();
 });
 
 module.exports = router;

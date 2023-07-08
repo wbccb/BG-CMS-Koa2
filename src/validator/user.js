@@ -1,5 +1,6 @@
 const {CommonValidator, Rule, RuleResult} = require("../lib/common-validator");
 const User = require("../models/user");
+const {LoginType} = require("../config/login-type");
 
 class RegisterValidator extends CommonValidator {
     constructor() {
@@ -59,8 +60,18 @@ class LoginValidator extends CommonValidator {
             new Rule("matches", "密码长度必须在6~22位之间，包含字符、数字和 _ "),
         ];
 
-        this.validateLoginType = async (value) => {
-            // TODO 检测传来的值是否有type属性
+        this.validateLoginType = async (ctx) => {
+            // 通过bodyparser中间件已经将数据放置在ctx.body中
+            const type = ctx.body.type;
+            if (!type) {
+                return RuleResult.getErrorMsg("登录类型必须传递", "type");
+            }
+
+            if (!LoginType.isThisType(type)) {
+                return RuleResult.getErrorMsg("不允许该登录方式，请尝试其它方式登录", "type");
+            }
+
+            return RuleResult.getSuccessMsg();
         };
     }
 }

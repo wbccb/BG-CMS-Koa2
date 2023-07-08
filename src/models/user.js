@@ -1,7 +1,9 @@
+const bcrypt = require("bcryptjs");
 const {mySequelize} = require("../lib/my-sequelize");
 const {Sequelize, Model, DataTypes} = require("sequelize");
-
-const bcrypt = require("bcryptjs");
+const {AuthFailedException} = require("../lib/http-exception");
+const config = require("../config/config");
+const jwt = require("jsonwebtoken");
 
 /**
  * Model就是直接的数据库操作
@@ -15,16 +17,38 @@ class User extends Model {
         });
 
         if (!user) {
-            // TODO 校验规则可以放在this.errors，然后触发最后一个中间件进行try-catch
-            // 那如果是其它业务呢？错误如何统一起来？
+            throw new AuthFailedException("用户不存在");
+            return;
         }
 
-        return {
-            id: user.id,
-        };
+        // 校验密码: 原始密码与user的加密密码进行比对，不能单纯使用===
+        const res = bcrypt.compareSync(password, user.password);
+
+        if (!res) {
+            throw new AuthFailedException("密码错误");
+            return;
+        }
+
+        return user;
     }
 
-    static async generateToken(id, type) {}
+    static async generateToken(userId, userLevel) {
+        const secretKey = config.security.secretKey;
+        const expiresIn = config.security.expiresIn;
+
+        const token = jwt.sign(
+            {
+                userId,
+                userLevel,
+            },
+            secretKey,
+            {
+                expiresIn: expiresIn,
+            }
+        );
+
+        return token;
+    }
 }
 
 User.init(
@@ -41,11 +65,12 @@ User.init(
         },
         password: {
             type: Sequelize.STRING,
-            set(val) {
+            set(password2) {
                 // 加密
                 const salt = bcrypt.genSaltSync(10);
                 // 生成加密密码
-                const psw = bcrypt.hashSync(val, salt);
+                const psw = bcrypt.hashSync(password2, salt);
+                // 保存到数据
                 this.setDataValue("password", psw);
             },
         },
