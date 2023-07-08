@@ -1,6 +1,6 @@
-const {CommonValidator, Rule, RuleResult} = require("../lib/common-validator");
+const { CommonValidator, Rule, RuleResult } = require("../lib/common-validator");
 const User = require("../models/user");
-const {LoginType} = require("../config/login-type");
+const { LoginType } = require("../config/login-type");
 
 class RegisterValidator extends CommonValidator {
     constructor() {
@@ -43,9 +43,9 @@ class RegisterValidator extends CommonValidator {
         };
     }
 
-    async validatePassword(ctx) {}
+    async validatePassword(ctx) { }
 
-    async validateEmail(ctx) {}
+    async validateEmail(ctx) { }
 }
 
 class LoginValidator extends CommonValidator {

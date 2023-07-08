@@ -19,6 +19,8 @@ const catchError = async (ctx, next) => {
     } catch (e) {
         // 开发环境，直接throw
 
+        debugger;
+
 
         const isHttpException = e instanceof HttpException;
         const isDev = global.config.environment === "dev";
@@ -36,7 +38,6 @@ const catchError = async (ctx, next) => {
         //
         // }
 
-        debugger;
         if (isHttpException) {
             // status可以告诉浏览器返回值的类型
             ctx.status = e.code;
@@ -51,7 +52,6 @@ const catchError = async (ctx, next) => {
                 code: 500,
                 message: "未知错误！",
                 request: `${ctx.method} ${ctx.path}`,
-                test: false
             };
             ctx.status = 500;
         }

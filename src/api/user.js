@@ -3,10 +3,10 @@
  */
 
 const Router = require("koa-router");
-const {RegisterValidator, LoginValidator} = require("../validator/user");
+const { RegisterValidator, LoginValidator } = require("../validator/user");
 const User = require("../models/user");
-const {Success, AuthFailedException} = require("../lib/http-exception");
-const {TokenCheck} = require("../middlewares/token-check");
+const { Success, AuthFailedException } = require("../lib/http-exception");
+const TokenCheck = require("../middlewares/token-check");
 const router = new Router({
     prefix: "/user",
 });
@@ -35,7 +35,7 @@ router.post("/register", async (ctx) => {
 router.post("/login", async (ctx) => {
     // 进行token的检测
 
-    const result = await new LoginValidator().validator(ctx);
+    const result = await new LoginValidator().validate(ctx);
 
     // 根据邮箱和密码进行校验是否正确
     const email = result.get("body.email");
@@ -49,6 +49,7 @@ router.post("/login", async (ctx) => {
         const response = new Success("登录成功", {
             token,
         });
+        console.log("获取token成功", token);
         ctx.status = 201;
         ctx.body = response.getData();
         return;
@@ -58,6 +59,15 @@ router.post("/login", async (ctx) => {
     const errorException = new AuthFailedException("登录失败");
     ctx.status = errorException.getData().code;
     ctx.body = errorException.getData();
+});
+
+router.post("/logout", async (ctx) => {
+    // token的清除
+
+    // 返回成功标志
+    const response = new Success("登出成功");
+    ctx.status = 201;
+    ctx.body = response.getData();
 });
 
 module.exports = router;
