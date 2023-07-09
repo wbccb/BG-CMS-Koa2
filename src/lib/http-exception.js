@@ -70,6 +70,10 @@ class Success extends HttpException {
         this.message = message || "成功";
         this.data = data;
     }
+
+    setData(data) {
+        this.data = data;
+    }
 }
 
 class OtherException extends HttpException {
