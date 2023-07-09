@@ -40,9 +40,9 @@ class ParameterException extends HttpException {
 
 
 class NotFoundException extends HttpException {
-    constructor(message) {
+    constructor(code, message) {
         super();
-        this.code = 404;
+        this.code = code || 404;
         this.message = message || "资源未找到";
     }
 }
