@@ -37,6 +37,7 @@ Menu.init(
         parentId: Sequelize.INTEGER,
         orderNum: Sequelize.INTEGER,
         path: Sequelize.STRING,
+        component: Sequelize.STRING,
         menuType: Sequelize.STRING,
         visible: Sequelize.STRING,
         status: Sequelize.STRING,
