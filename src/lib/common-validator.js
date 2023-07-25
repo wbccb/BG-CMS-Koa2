@@ -1,6 +1,6 @@
-const {cloneDeep, isArray, unset, isEmpty, get, last} = require("lodash");
-const {ParameterException, OtherException} = require("./http-exception");
-const {getAllfieldNames, getAllMethodNames} = require("./util");
+const { cloneDeep, isArray, unset, isEmpty, get, last } = require("lodash");
+const { ParameterException, OtherException } = require("./http-response");
+const { getAllfieldNames, getAllMethodNames } = require("./util");
 const validator = require("validator");
 
 class RuleResult {
@@ -109,16 +109,16 @@ class CommonValidator {
         if (!checkParamsResult) {
             // 参数校验不通过
             if (this.errors.length === 1) {
+                console.log("最终validate抛出错误:" + JSON.stringify(this.errors[0]));
                 throw this.errors[0];
-                return;
             }
 
             let errorObj = {};
             for (const item of this.errors) {
                 errorObj[item.errorKey] = item;
             }
+            console.log("最终validate抛出错误:" + JSON.stringify(errorObj));
             throw errorObj;
-            console.log("最终validate抛出错误");
         }
 
         console.log("最终validate仍然return");
@@ -267,6 +267,8 @@ class CommonValidator {
                 this.errors.push(errorException);
             } else {
                 // 自定义校验函数，第一个参数是校验是否成功，第二个参数为错误信息
+
+                // TODO 校验函数返回RuleResult.getErrorMsg，提取出来形成HttpException
                 let validateResult = validateResultObj.result;
                 let validateMessage = validateResultObj.message;
                 let errorKey = validateResultObj.key || validateFnName.replace("validate", "");

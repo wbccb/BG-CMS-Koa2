@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
-const {mySequelize} = require("../lib/my-sequelize");
-const {Sequelize, Model, DataTypes} = require("sequelize");
-const {AuthFailedException} = require("../lib/http-exception");
+const { mySequelize } = require("../lib/my-sequelize");
+const { Sequelize, Model, DataTypes } = require("sequelize");
+const { AuthFailedException, HttpException, HTTP_CODE } = require("../lib/http-response");
 const config = require("../config/config");
 const jwt = require("jsonwebtoken");
 
@@ -13,11 +13,11 @@ class User extends Model {
         // 通过邮箱和密码检测是否正确
 
         const user = await User.findOne({
-            where: {email},
+            where: { email },
         });
 
         if (!user) {
-            throw new AuthFailedException("用户不存在");
+            throw new AuthFailedException();
             return;
         }
 
@@ -25,7 +25,7 @@ class User extends Model {
         const res = bcrypt.compareSync(password, user.password);
 
         if (!res) {
-            throw new AuthFailedException("密码错误");
+            throw new HttpException("密码错误", HTTP_CODE["账号/密码错误"]);
             return;
         }
 

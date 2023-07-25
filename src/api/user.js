@@ -5,7 +5,7 @@
 const Router = require("koa-router");
 const { RegisterValidator, LoginValidator } = require("../validator/user");
 const User = require("../models/user");
-const { Success, AuthFailedException } = require("../lib/http-exception");
+const { Success, AuthFailedException } = require("../lib/http-response");
 const TokenCheck = require("../middlewares/token-check");
 const router = new Router({
     prefix: "/user",

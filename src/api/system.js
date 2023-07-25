@@ -1,7 +1,7 @@
 const Router = require("koa-router");
 const { CreateOrUpdateMenuValidator, DeleteMenuValidator } = require("../validator/system");
 const Menu = require("../models/menu");
-const { Success, AuthFailedException, HttpException } = require("../lib/http-exception");
+const { Success, AuthFailedException, HttpException } = require("../lib/http-response");
 const TokenCheck = require("../middlewares/token-check");
 const { LoginValidator } = require("../validator/user");
 const User = require("../models/user");

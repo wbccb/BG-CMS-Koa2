@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { mySequelize } = require("../lib/my-sequelize");
 const { Sequelize, Model, DataTypes } = require("sequelize");
-const { AuthFailedException, NotFoundException } = require("../lib/http-exception");
+const { AuthFailedException, NotFoundException } = require("../lib/http-response");
 const config = require("../config/config");
 const jwt = require("jsonwebtoken");
 

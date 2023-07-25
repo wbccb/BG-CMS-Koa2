@@ -5,7 +5,7 @@ const {
     ForbiddenException,
     Success,
     HttpException,
-} = require("../lib/http-exception");
+} = require("../lib/http-response");
 
 /**
  * 放在app.use()第一个中间件，可以捕获所有的await next()错误
@@ -18,8 +18,6 @@ const catchError = async (ctx, next) => {
         await next();
     } catch (e) {
         // 开发环境，直接throw
-
-        debugger;
 
 
         const isHttpException = e instanceof HttpException;
@@ -40,13 +38,19 @@ const catchError = async (ctx, next) => {
 
         if (isHttpException) {
             // status可以告诉浏览器返回值的类型
-            ctx.status = e.code;
+            ctx.status = e.httpCode;
             // 浏览器解析的是这个res.data，也就是body的值
-            ctx.body = {
+            const responseData = {
                 code: e.code,
-                message: e.message,
+                desc: e.desc,
                 data: e.data || {}
             }
+            if(e.errorKey) {
+                responseData.data = {
+                    errorKey: e.errorKey
+                }
+            }
+            ctx.body = responseData;
         } else {
             ctx.body = {
                 code: 500,

@@ -1,6 +1,8 @@
 const { CommonValidator, Rule, RuleResult } = require("../lib/common-validator");
 const User = require("../models/user");
 const { LoginType } = require("../config/login-type");
+const { HttpError } = require("koa");
+const { HttpException, HTTP_CODE, Success } = require("../lib/http-response");
 
 class RegisterValidator extends CommonValidator {
     constructor() {

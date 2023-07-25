@@ -50,7 +50,7 @@ class InitManager {
      * 全局错误处理方法加载
      */
     static loadHttpException() {
-        const errors = require("../src/lib/http-exception");
+        const errors = require("./lib/http-response");
         global.errs = errors;
     }
 }
