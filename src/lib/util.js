@@ -43,8 +43,19 @@ function filterPreFix(keys, option) {
     return keys;
 }
 
+function adaptToChildrenList(o, childrenListMap) {
+    if (o["menuId"] && childrenListMap[o["menuId"]] !== null) {
+        o["children"] = childrenListMap[o["menuId"]];
+    }
+    if (o["children"]) {
+        for (let c of o["children"]) {
+            adaptToChildrenList(c, childrenListMap);
+        }
+    }
+}
 
 module.exports = {
     getAllfieldNames,
-    getAllMethodNames
+    getAllMethodNames,
+    adaptToChildrenList
 };

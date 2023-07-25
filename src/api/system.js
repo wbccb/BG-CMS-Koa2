@@ -5,6 +5,7 @@ const { Success, AuthFailedException, HttpException } = require("../lib/http-res
 const TokenCheck = require("../middlewares/token-check");
 const { LoginValidator } = require("../validator/user");
 const User = require("../models/user");
+const {adaptToChildrenList} = require("../../src/lib/util");
 const router = new Router({
     prefix: "/system",
 });
@@ -54,6 +55,97 @@ router.get("/menu", async (ctx) => {
     const success = new Success();
     success.setData(menuList);
 
+    ctx.body = success.getData();
+});
+
+router.get("/menu/routes", async(ctx)=> {
+    // 拼接数据
+    const data = await Menu.findAll();
+
+    // 将所有菜单拼接为树状结构
+    let childrenListMap = {};
+    let nodeIds = {};
+    let tree = [];
+
+    // 难点在于：最外层菜单-子菜单-路由按钮
+    // 如何找到它们之间的关系，然后形成不同形态的数据格式返回
+    // interface NetworkRoute {
+    //     alwaysShow: boolean;
+    //     children: Array<NetworkRoute>;
+    //     component: any;
+    //     hidden: boolean;
+    //     meta: {title: string; icon: string; noCache: boolean; link: null | string};
+    //     name: string;
+    //     path: string;
+    //     redirect: string | undefined;
+    // }
+    for (const item of data) {
+        const parentId = item["parentId"];
+        if(!parentId) {
+            continue;
+        }
+        if (childrenListMap[parentId] == null) {
+            childrenListMap[parentId] = [];
+        }
+        const nodeId = item["menuId"];
+        const simpleItem = {
+            menuId: nodeId,
+            name: item["menuName"],
+            path: item["path"],
+            alwaysShow: item["visible"],
+            component: item["component"],
+            hidden: item["visible"],
+            meta: {
+                title: item["menuName"],
+                link: null
+            }
+        };
+        nodeIds[nodeId] = simpleItem;
+        childrenListMap[parentId].push(simpleItem);
+    }
+
+
+    for (let item of data) {
+        // 将最外层的菜单添加到tree，因为最外层的parentId是不存在于nodeIds中的
+        // 比如有一个最外层的菜单的parentId是0，0就是代表最外外层的！
+        let parentId = item["parentId"];
+        if (parentId === null) {
+            const simpleItem = {
+                menuId: item["menuId"],
+                name: item["menuName"],
+                path: item["path"],
+                alwaysShow: item["visible"],
+                component: item["component"],
+                hidden: item["visible"],
+                meta: {
+                    title: item["menuName"],
+                    link: null
+                }
+            };
+            tree.push(simpleItem);
+        }
+    }
+
+    /**
+     * childrenListMap = {parentId: [child1, child2, child3]}
+     * tree = [child1, child2, child3]
+     *
+     * adaptToChildrenList:
+     * 1.child1["children"] = childrenListMap[child1.id]，拿到child1所有的children
+     * 2.递归触发child的child进行children的收集
+     */
+
+    for (let t of tree) {
+        adaptToChildrenList(t, childrenListMap);
+    }
+
+
+    const success = new Success();
+    success.setData({
+        total: 2,
+        list: tree
+    });
+    // 返回结果
     ctx.body = success.getData();
 });
 
@@ -114,19 +206,18 @@ router.get("/menu/treeselect", async (ctx) => {
         }
     }
 
-    function adaptToChildrenList(o) {
-        if (childrenListMap[o["id"]] !== null) {
-            o["children"] = childrenListMap[o["id"]];
-        }
-        if (o["children"]) {
-            for (let c of o["children"]) {
-                adaptToChildrenList(c);
-            }
-        }
-    }
+
+    /**
+     * childrenListMap = {parentId: [child1, child2, child3]}
+     * tree = [child1, child2, child3]
+     *
+     * adaptToChildrenList:
+     * 1.child1["children"] = childrenListMap[child1.id]，拿到child1所有的children
+     * 2.递归触发child的child进行children的收集
+     */
 
     for (let t of tree) {
-        adaptToChildrenList(t);
+        adaptToChildrenList(t, childrenListMap);
     }
 
 
