@@ -52,15 +52,15 @@ module.exports = [
         ],
     },
     {
-        name: "Http://ruoyi.vip",
-        path: "http://ruoyi.vip",
+        name: "wbccb官网",
+        path: "https://github.com/wbccb",
         hidden: false,
         component: "Layout",
         meta: {
             title: "wbccb官网",
             icon: "guide",
             noCache: false,
-            link: "http://ruoyi.vip",
+            link: "https://github.com/wbccb",
         },
     },
 ];

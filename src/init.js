@@ -77,7 +77,7 @@ class InitManager {
                     menuName: menu.name,
                     parentId: id,
                     orderNum: 1,
-                    path: menu.path.startsWith("/") ? menu.path : "/" + menu.path,
+                    path: menu.path,
                     component: menu.component,
                     menuType: menuType,
                     visible: menu.hidden,
