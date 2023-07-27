@@ -63,6 +63,24 @@ class InitManager {
     static async initClientMenus() {
         // 数据库操作
 
+        function createMenuItem(id, menu, menuTypeLevel) {
+            const menuType = menuTypeEnum[menuTypeLevel];
+            const item = {
+                menuName: menu.meta.title,
+                parentId: id,
+                orderNum: 1,
+                name: menu.name,
+                path: menu.path,
+                component: menu.component,
+                menuType: menuType,
+                visible: menu.meta.hidden,
+                status: menu.meta.status,
+                isIframe: menu.isIframe,
+            };
+            return item;
+        }
+
+
         const initArray = await Menu.findAll();
         if(initArray.length > 0) {
             return;
@@ -72,18 +90,7 @@ class InitManager {
 
         async function addChildren(id, menus, menuTypeLevel) {
             for (const menu of menus) {
-                const menuType = menuTypeEnum[menuTypeLevel];
-                const item = {
-                    menuName: menu.name,
-                    parentId: id,
-                    orderNum: 1,
-                    path: menu.path,
-                    component: menu.component,
-                    menuType: menuType,
-                    visible: menu.hidden,
-                    status: menu.status,
-                    isIframe: menu.isIframe,
-                };
+                const item = createMenuItem(id, menu, menuTypeLevel);
                 const res = await Menu.create(item);
                 const subId = res.get("id");
                 if (menu.children) {
@@ -96,19 +103,9 @@ class InitManager {
         for (const menu of initMenuArray) {
             //  menuType: "subMenu" | "menu" | "button";
             // 插入menu到数据库中，获取对应的id，提供给children进行parentId的标记
-            const item = {
-                menuName: menu.name,
-                parentId: null,
-                orderNum: 1,
-                path: menu.path.startsWith("/") ? menu.path : "/" + menu.path,
-                component: menu.component,
-                menuType: "menu",
-                visible: menu.hidden,
-                status: menu.status,
-                isIframe: menu.isIframe,
-            };
-
+            const item = createMenuItem(null, menu, 0);
             const res = await Menu.create(item);
+
             const id = res.get("menuId");
             if (menu.children) {
                 addChildren(id, menu.children, 1);

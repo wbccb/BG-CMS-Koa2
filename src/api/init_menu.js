@@ -1,8 +1,7 @@
 module.exports = [
     {
-        name: "System",
-        path: "/system",
-        hidden: false,
+        name: "System", // 路由的名称，唯一性，可以在跳转时使用
+        path: "/system", // 路由的具体路径，唯一性，可以在跳转时使用
         redirect: "noRedirect",
         component: "Layout",
         alwaysShow: true,
@@ -11,42 +10,47 @@ module.exports = [
             icon: "system",
             noCache: false,
             link: null,
+            hidden: false,
+            status: true,
         },
         children: [
             {
                 name: "User",
                 path: "user",
-                hidden: false,
                 component: "system/user/index",
                 meta: {
                     title: "用户管理",
                     icon: "user",
                     noCache: false,
                     link: null,
+                    hidden: false,
+                    status: true,
                 },
             },
             {
                 name: "Role",
                 path: "role",
-                hidden: false,
                 component: "system/role/index",
                 meta: {
                     title: "角色管理",
                     icon: "peoples",
                     noCache: false,
                     link: null,
+                    hidden: false,
+                    status: true,
                 },
             },
             {
                 name: "Menu",
                 path: "menu",
-                hidden: false,
                 component: "system/menu/index",
                 meta: {
                     title: "菜单管理",
                     icon: "tree-table",
                     noCache: false,
                     link: null,
+                    hidden: false,
+                    status: true,
                 },
             },
         ],
@@ -54,13 +58,14 @@ module.exports = [
     {
         name: "wbccb官网",
         path: "https://github.com/wbccb",
-        hidden: false,
         component: "Layout",
         meta: {
             title: "wbccb官网",
             icon: "guide",
             noCache: false,
             link: "https://github.com/wbccb",
+            hidden: false,
+            status: true,
         },
     },
 ];

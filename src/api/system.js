@@ -23,6 +23,7 @@ router.post("/menu", async (ctx) => {
         parentId: result.get("body.parentId"),
         orderNum: result.get("body.orderNum"),
         path: result.get("body.path"), // 路由hash值
+        name: result.get("body.name"),
         component: result.get("body.component"),
         menuType: result.get("body.menuType"),
         visible: result.get("body.visible"),
@@ -53,7 +54,12 @@ router.get("/menu", async (ctx) => {
 
     const menuList = await Menu.findAll();
     const success = new Success();
-    success.setData(menuList);
+    success.setData({
+        total: menuList.length,
+        list: menuList,
+        pageNo: 1,
+        pageSize: menuList.length
+    });
 
     ctx.body = success.getData();
 });

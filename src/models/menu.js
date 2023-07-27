@@ -33,10 +33,11 @@ Menu.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        menuName: Sequelize.STRING,
+        menuName: Sequelize.STRING, // meta.title
         parentId: Sequelize.INTEGER,
         orderNum: Sequelize.INTEGER,
-        path: Sequelize.STRING,
+        path: Sequelize.STRING, // 路由路径
+        name: Sequelize.STRING, // 路由名称
         component: Sequelize.STRING,
         menuType: Sequelize.STRING,
         visible: Sequelize.STRING,
