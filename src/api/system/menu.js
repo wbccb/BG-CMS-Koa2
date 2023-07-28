@@ -1,11 +1,11 @@
 const Router = require("koa-router");
-const { CreateOrUpdateMenuValidator, DeleteMenuValidator } = require("../validator/system");
-const Menu = require("../models/menu");
-const { Success, AuthFailedException, HttpException } = require("../lib/http-response");
-const TokenCheck = require("../middlewares/token-check");
-const { LoginValidator } = require("../validator/user");
-const User = require("../models/user");
-const {adaptToChildrenList} = require("../../src/lib/util");
+const { CreateOrUpdateMenuValidator, DeleteValidator } = require("../../validator/system");
+const Menu = require("../../models/menu");
+const { Success, AuthFailedException, HttpException } = require("../../lib/http-response");
+const TokenCheck = require("../../middlewares/token-check");
+const { LoginValidator } = require("../../validator/user");
+const User = require("../../models/user");
+const {adaptToChildrenList} = require("../../lib/util");
 const router = new Router({
     prefix: "/system",
 });
@@ -85,18 +85,11 @@ router.get("/menu/routes", async(ctx)=> {
     //     path: string;
     //     redirect: string | undefined;
     // }
-    for (const item of data) {
-        const parentId = item["parentId"];
-        if(!parentId) {
-            continue;
-        }
-        if (childrenListMap[parentId] == null) {
-            childrenListMap[parentId] = [];
-        }
-        const nodeId = item["menuId"];
+
+    function createRouteObject(nodeId, item) {
         const simpleItem = {
             menuId: nodeId,
-            name: item["menuName"],
+            name: item["name"],
             path: item["path"],
             alwaysShow: item["visible"],
             component: item["component"],
@@ -106,6 +99,19 @@ router.get("/menu/routes", async(ctx)=> {
                 link: null
             }
         };
+        return simpleItem;
+    }
+
+    for (const item of data) {
+        const parentId = item["parentId"];
+        if(!parentId) {
+            continue;
+        }
+        if (childrenListMap[parentId] == null) {
+            childrenListMap[parentId] = [];
+        }
+        const nodeId = item["menuId"];
+        const simpleItem = createRouteObject(nodeId, item);
         nodeIds[nodeId] = simpleItem;
         childrenListMap[parentId].push(simpleItem);
     }
@@ -116,18 +122,7 @@ router.get("/menu/routes", async(ctx)=> {
         // 比如有一个最外层的菜单的parentId是0，0就是代表最外外层的！
         let parentId = item["parentId"];
         if (parentId === null) {
-            const simpleItem = {
-                menuId: item["menuId"],
-                name: item["menuName"],
-                path: item["path"],
-                alwaysShow: item["visible"],
-                component: item["component"],
-                hidden: item["visible"],
-                meta: {
-                    title: item["menuName"],
-                    link: null
-                }
-            };
+            const simpleItem = createRouteObject(item["menuId"], item);
             tree.push(simpleItem);
         }
     }
@@ -156,7 +151,7 @@ router.get("/menu/routes", async(ctx)=> {
 });
 
 router.delete("/menu", async (ctx) => {
-    const result = await new DeleteMenuValidator().validate(ctx);
+    const result = await new DeleteValidator().validate(ctx);
 
     const id = ctx.query ? ctx.query.id : "";
     if (!id) {
@@ -185,6 +180,9 @@ router.get("/menu/treeselect", async (ctx) => {
 
     for (const item of data) {
         const parentId = item["parentId"];
+        if(parentId === undefined || parentId === null) {
+            continue;
+        }
         if (childrenListMap[parentId] == null) {
             childrenListMap[parentId] = [];
         }
@@ -202,7 +200,7 @@ router.get("/menu/treeselect", async (ctx) => {
         // 将最外层的菜单添加到tree，因为最外层的parentId是不存在于nodeIds中的
         // 比如有一个最外层的菜单的parentId是0，0就是代表最外外层的！
         let parentId = item["parentId"];
-        if (nodeIds[parentId] == null) {
+        if(parentId === null) {
             const simpleItem = {
                 parentId: item.parentId,
                 id: item.menuId,

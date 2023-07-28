@@ -54,17 +54,17 @@ class User extends Model {
 User.init(
     {
         id: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        nickname: Sequelize.STRING,
+        nickname: DataTypes.STRING,
         email: {
-            type: Sequelize.STRING(128),
+            type: DataTypes.STRING(128),
             unique: true,
         },
         password: {
-            type: Sequelize.STRING,
+            type: DataTypes.STRING,
             set(password2) {
                 // 加密
                 const salt = bcrypt.genSaltSync(10);

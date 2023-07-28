@@ -44,13 +44,15 @@ function filterPreFix(keys, option) {
 }
 
 function adaptToChildrenList(o, childrenListMap) {
-    if (o["menuId"] && childrenListMap[o["menuId"]] !== null) {
-        o["children"] = childrenListMap[o["menuId"]];
+    const parentId = o["menuId"] || o["id"];
+    if (!parentId || !childrenListMap[parentId]) {
+        return;
     }
-    if (o["children"]) {
-        for (let c of o["children"]) {
-            adaptToChildrenList(c, childrenListMap);
-        }
+    // childrenListMap = {parentId: [child1, child2, child3]}
+    o["children"] = childrenListMap[parentId];
+
+    for (let c of o["children"]) {
+        adaptToChildrenList(c, childrenListMap);
     }
 }
 

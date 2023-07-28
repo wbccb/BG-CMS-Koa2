@@ -1,7 +1,9 @@
 const Router = require("koa-router");
 const requireDirectory = require("require-directory");
 const Menu = require("./models/menu");
+const Role = require("./models/role");
 const initMenuArray = require("./api/init_menu.js");
+const initRoleArray = require("./api/init_role.js");
 
 class InitManager {
     /**
@@ -13,7 +15,8 @@ class InitManager {
         InitManager.loadRouters();
         InitManager.loadHttpException();
         InitManager.loadConfig();
-        InitManager.initClientMenus();
+        InitManager.initMenuData();
+        InitManager.initRoleData();
     }
 
     /**
@@ -60,7 +63,7 @@ class InitManager {
     /**
      * 初始化客户端菜单
      */
-    static async initClientMenus() {
+    static async initMenuData() {
         // 数据库操作
 
         function createMenuItem(id, menu, menuTypeLevel) {
@@ -79,7 +82,6 @@ class InitManager {
             };
             return item;
         }
-
 
         const initArray = await Menu.findAll();
         if(initArray.length > 0) {
@@ -112,6 +114,20 @@ class InitManager {
             }
         }
     }
+
+
+    static async initRoleData() {
+        const initArray = await Role.findAll();
+        if(initArray.length > 0) {
+            return;
+        }
+        // 从数据中拆分出每一项menu
+        for (const role of initRoleArray) {
+            await Role.create(role);
+        }
+
+    }
+
 }
 
 module.exports = InitManager;

@@ -2,13 +2,18 @@ const { CommonValidator, Rule, RuleResult } = require("../lib/common-validator")
 const User = require("../models/user");
 const { LoginType } = require("../config/login-type");
 
+
+
 class CreateOrUpdateMenuValidator extends CommonValidator {
     constructor() {
         super();
     }
 }
 
-class DeleteMenuValidator extends CommonValidator {
+/**
+ * 通用型错误检测，每一个接口的删除都是根据id进行删除
+ */
+class DeleteValidator extends CommonValidator {
     constructor() {
         super();
         // this.menuId = [
@@ -20,5 +25,5 @@ class DeleteMenuValidator extends CommonValidator {
 
 module.exports = {
     CreateOrUpdateMenuValidator,
-    DeleteMenuValidator
+    DeleteValidator: DeleteValidator
 };

@@ -81,6 +81,50 @@
 
 ### 角色管理
 
+#### 数据库表设计
+
+`/models/menu.js`
+
+#### 路由处理
+
+`/api/system/menu.js`：调用`数据库操作的工具方法`，拿到数据库操作结果后返回数据
+
+##### 数据库操作的工具方法
+
+`/models/role.js`
+
+##### 校验规则
+
+`/validator/system.js`
+
+```js
+const success = new Success();
+success.setData({
+    total: 2,
+    list: tree
+});
+// 返回结果
+ctx.body = success.getData();
+```
+
+
+
+### 菜单管理
+
+#### 数据库表设计
+
+`/models/role.js`
+
+#### 初始化数据库的表数据
+
+`/api/init_role.js`有对应的数组数据
+
+#### 路由处理
+
+##### 数据库操作的工具方法
+
+##### 校验规则
+
 
 
 
