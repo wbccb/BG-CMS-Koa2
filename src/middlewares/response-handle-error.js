@@ -19,6 +19,7 @@ const catchError = async (ctx, next) => {
     } catch (e) {
         // 开发环境，直接throw
 
+        debugger;
 
         const isHttpException = e instanceof HttpException;
         const isDev = global.config.environment === "dev";

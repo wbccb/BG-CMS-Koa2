@@ -2,8 +2,10 @@ const Router = require("koa-router");
 const requireDirectory = require("require-directory");
 const Menu = require("./models/menu");
 const Role = require("./models/role");
+const People = require("./models/people");
 const initMenuArray = require("./api/init_menu.js");
 const initRoleArray = require("./api/init_role.js");
+const initPeopleArray = require("./api/init_people.js");
 
 class InitManager {
     /**
@@ -17,6 +19,7 @@ class InitManager {
         InitManager.loadConfig();
         InitManager.initMenuData();
         InitManager.initRoleData();
+        InitManager.initPeople();
     }
 
     /**
@@ -27,7 +30,7 @@ class InitManager {
         function whenLoadModule(obj) {
             // 判断加载的是否是路由
             if (obj instanceof Router) {
-                console.log(obj);
+                // console.log(obj);
                 InitManager.app.use(obj.routes());
             }
         }
@@ -126,6 +129,21 @@ class InitManager {
             await Role.create(role);
         }
 
+    }
+
+    static async initPeople() {
+        const initArray = await People.findAll();
+        if(initArray.length > 0) {
+            return;
+        }
+        // 从数据中拆分出每一项menu
+        for (const people of initPeopleArray) {
+            const newPeople = {
+                ...people,
+                ...{permissions: people.permissions.join(",")}
+            }
+            await People.create(newPeople);
+        }
     }
 
 }

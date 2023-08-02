@@ -145,7 +145,7 @@ class CommonValidator {
                     return false;
                 }
 
-                console.log(JSON.stringify(value));
+                // console.log(JSON.stringify(value));
                 // 抛出异常可以终止forEach循环
                 // return false/true只能终止本次执行，不能终止循环
                 value.forEach((item) => {

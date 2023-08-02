@@ -11,6 +11,7 @@ const router = new Router({
     prefix: "/system",
 });
 
+
 /**
  * 新增menu功能
  */
@@ -19,17 +20,17 @@ router.post("/role", async (ctx) => {
     const result = await new CreateOrUpdateMenuValidator().validate(ctx);
 
     // 第二步：数据库操作
-    const menu = {
-        remark: res.get("body.remark"),
-        roleId: res.get("body.roleId"),
-        roleName: res.get("body.roleName"),
-        roleKey: res.get("body.roleKey"),
-        roleSort: res.get("body.roleSort"),
-        permissions: res.get("body.permissions"),
-        admin: res.get("body.admin"),
+    const role = {
+        remark: result.get("body.remark"),
+        roleId: result.get("body.roleId"),
+        roleName: result.get("body.roleName"),
+        roleKey: result.get("body.roleKey"),
+        roleSort: result.get("body.roleSort"),
+        permissions: result.get("body.permissions"),
+        admin: result.get("body.admin"),
     };
     // Koa使用全局错误捕获，如果await出错，会被中间件捕获错误
-    const res = await Role.create(menu);
+    const res = await Role.create(role);
 
     // 第三步：返回response结果
     ctx.body = new Success().getData();
@@ -50,6 +51,7 @@ router.put("/role", async (ctx) => {
 
 router.get("/role", async (ctx) => {
     // TODO 这里需要分页，需要根据pageNo和pageSize返回结果
+
     const roleList = await Role.findAll();
     const success = new Success();
     success.setData({
@@ -78,7 +80,7 @@ router.delete("/role", async (ctx) => {
     // 第二步：数据库操作
     await Role.destroy({
         where: {
-            menuId: id,
+            id: id,
         },
     });
 

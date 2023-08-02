@@ -22,7 +22,7 @@ router.post("/register", async (ctx) => {
         nickname: res.get("body.nickName"),
     };
 
-    console.log(JSON.stringify(user));
+    // console.log(JSON.stringify(user));
 
     // 数据库插入行数据
     // set password会自动进行加密操作
@@ -46,8 +46,11 @@ router.post("/login", async (ctx) => {
     // 如果校验通过，则生成token，存储并发放给用户
     if (user) {
         const token = User.generateToken(user.id, TokenCheck.AUSE);
+        // TODO 如果是直接登录，返回token+用户信息userId
+        // TODO 如果是token登录，则返回用户信息userId
         const response = new Success("登录成功", {
-            token,
+            token: token,
+            userId: user.id
         });
         console.log("获取token成功", token);
         ctx.status = 201;
@@ -67,6 +70,16 @@ router.post("/logout", async (ctx) => {
     // 返回成功标志
     const response = new Success("登出成功");
     ctx.status = 201;
+    ctx.body = response.getData();
+});
+
+router.get("getInfo", async (ctx)=> {
+    // 根据token获取对应的user数据
+
+    // TODO 涉及到token放在哪里以及如何获取token以及如何验证token的问题
+
+    const response = new Success("获取用户信息成功");
+    ctx.status = 200;
     ctx.body = response.getData();
 });
 
