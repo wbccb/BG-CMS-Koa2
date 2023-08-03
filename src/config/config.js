@@ -8,7 +8,7 @@ module.exports = {
         password: "123456",
     },
     security: {
-        secretKey: "abcdefg", // token加密的密钥
+        secretKey: "abcdef33fdfgg", // token加密的密钥
         expiresIn: 60 * 60,
     }
 };

@@ -7,12 +7,17 @@ const parser = require("koa-bodyparser");
 const catchError = require("./middlewares/response-handle-error");
 const InitManager = require("./init");
 const TokenCheck = require("./middlewares/token-check");
+const config = require("./config/config");
+const jwt = require('koa-jwt');
+
 
 const app = new Koa();
 app.use(catchError); // 全局捕获错误
 app.use(parser()); // 自动处理参数，然后将参数解析放在ctx.request.body中
 
-app.use(new TokenCheck().getCheckMiddleWare());
+app.use(jwt({secret: config.security.secretKey}).unless({
+    path: [ '/', '/login', /^\/user\//, '/user/login']
+}));
 // app.use(async(ctx, next) => {
 //     // TODO 进行token的验证，如果验证通过
 //

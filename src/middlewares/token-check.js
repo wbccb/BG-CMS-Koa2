@@ -3,7 +3,7 @@
  */
 const basicAuth = require("basic-auth");
 const jwt = require("jsonwebtoken");
-const {Forbidden} = require("../middlewares/response-handle-error")
+const {ForbiddenException} = require("../lib/http-response")
 
 class TokenCheck {
 
@@ -18,7 +18,7 @@ class TokenCheck {
      getCheckMiddleWare() {
         return async (ctx, next) => {
 
-            if(ctx.url.indexOf("user/login")) {
+            if(ctx.url.indexOf("user/login") >= 0) {
                 // 如果是登录页面，不进行token验证
                 await next();
                 return;
@@ -31,20 +31,24 @@ class TokenCheck {
             const userToken = basicAuth(ctx.req); // basicAuth自动校验
             console.log("拿到的token", userToken);
             if (!userToken || !userToken.name) {
+                debugger;
                 // 中断next()的执行
-                throw new Forbidden();
+                throw new ForbiddenException();
             }
 
             try {
-                jwt.verify(userToken.name, global.config.security.secretKey);
+                const verifyResult = jwt.verify(userToken.name, global.config.security.secretKey);
+                console.log("验证token的结果是", verifyResult);
+                debugger;
                 await next();
             } catch (error) {
+                debugger;
                 // 1. token不合法
                 // 2. token过期
                 if (error.name === "TokenExpiredError") {
-                    throw new Forbidden("token已经过期");
+                    throw new ForbiddenException("token已经过期");
                 } else {
-                    throw new Forbidden();
+                    throw new ForbiddenException();
                 }
             }
         };

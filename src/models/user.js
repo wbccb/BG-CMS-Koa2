@@ -32,7 +32,7 @@ class User extends Model {
         return user;
     }
 
-    static async generateToken(userId, userLevel) {
+    static generateToken(userId, userLevel) {
         const secretKey = config.security.secretKey;
         const expiresIn = config.security.expiresIn;
 
