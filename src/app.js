@@ -1,7 +1,6 @@
 require("module-alias/register");
 const User = require("./models/user");
 const Menu = require("./models/menu");
-const People = require("./models/people");
 const Role = require("./models/role");
 const Koa = require("koa");
 const parser = require("koa-bodyparser");

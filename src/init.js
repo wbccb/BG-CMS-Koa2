@@ -2,7 +2,7 @@ const Router = require("koa-router");
 const requireDirectory = require("require-directory");
 const Menu = require("./models/menu");
 const Role = require("./models/role");
-const People = require("./models/people");
+const User = require("./models/user");
 const initMenuArray = require("./api/system/initData/init_menu.js");
 const initRoleArray = require("./api/system/initData/init_role.js");
 const initPeopleArray = require("./api/system/initData/init_people.js");
@@ -19,7 +19,7 @@ class InitManager {
         InitManager.loadConfig();
         InitManager.initMenuData();
         InitManager.initRoleData();
-        InitManager.initPeople();
+        InitManager.initUser();
     }
 
     /**
@@ -131,14 +131,15 @@ class InitManager {
 
     }
 
-    static async initPeople() {
-        const initArray = await People.findAll();
+    static async initUser() {
+        const initArray = await User.findAll();
         if(initArray.length > 0) {
             return;
         }
         // 从数据中拆分出每一项menu
         for (const people of initPeopleArray) {
-            await People.create(people);
+            console.log(people);
+            await User.create(people);
         }
     }
 
