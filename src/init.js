@@ -69,8 +69,7 @@ class InitManager {
     static async initMenuData() {
         // 数据库操作
 
-        function createMenuItem(id, menu, menuTypeLevel) {
-            const menuType = menuTypeEnum[menuTypeLevel];
+        function createMenuItem(id, menu, menuType) {
             const item = {
                 menuName: menu.meta.title,
                 parentId: id,
@@ -95,7 +94,12 @@ class InitManager {
 
         async function addChildren(id, menus, menuTypeLevel) {
             for (const menu of menus) {
-                const item = createMenuItem(id, menu, menuTypeLevel);
+                let menuType = menuTypeEnum[menuTypeLevel];
+                if(menu.meta.menuType) {
+                    menuType = menu.meta.menuType;
+                }
+
+                const item = createMenuItem(id, menu, menuType);
                 const res = await Menu.create(item);
                 const subId = res.get("id");
                 if (menu.children) {
@@ -108,7 +112,11 @@ class InitManager {
         for (const menu of initMenuArray) {
             //  menuType: "subMenu" | "menu" | "button";
             // 插入menu到数据库中，获取对应的id，提供给children进行parentId的标记
-            const item = createMenuItem(null, menu, 0);
+            let menuType = menuTypeEnum[0];
+            if(menu.meta.menuType) {
+                menuType = menu.meta.menuType;
+            }
+            const item = createMenuItem(null, menu, menuType);
             const res = await Menu.create(item);
 
             const id = res.get("menuId");

@@ -12,6 +12,7 @@ module.exports = [
             link: null,
             hidden: false,
             status: true,
+            menuType: "menu"
         },
         children: [
             {
@@ -25,6 +26,7 @@ module.exports = [
                     link: null,
                     hidden: false,
                     status: true,
+                    menuType: "button"
                 },
             },
             {
@@ -38,6 +40,7 @@ module.exports = [
                     link: null,
                     hidden: false,
                     status: true,
+                    menuType: "button"
                 },
             },
             {
@@ -51,6 +54,7 @@ module.exports = [
                     link: null,
                     hidden: false,
                     status: true,
+                    menuType: "button"
                 },
             },
         ],
@@ -66,6 +70,7 @@ module.exports = [
             link: "https://github.com/wbccb",
             hidden: false,
             status: true,
+            menuType: "button"
         },
     },
 ];

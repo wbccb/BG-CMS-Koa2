@@ -190,12 +190,13 @@ router.get("/menu/treeselect", async (ctx) => {
         const simpleItem = {
             parentId: item.parentId,
             id: item.menuId,
-            label: item.menuName
+            label: item.menuName,
+            menuType: item.menuType,
+            path: item.path
         };
         nodeIds[nodeId] = simpleItem;
         childrenListMap[parentId].push(simpleItem);
     }
-
     for (let item of data) {
         // 将最外层的菜单添加到tree，因为最外层的parentId是不存在于nodeIds中的
         // 比如有一个最外层的菜单的parentId是0，0就是代表最外外层的！

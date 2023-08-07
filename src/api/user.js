@@ -161,7 +161,6 @@ router.get("/people/authRole/:id", async (ctx) => {
     // 2. 只有一个超级管理员
     const params = ctx.params || {};
     let roleArray = [];
-    debugger;
     if (params.id) {
         const user = await User.findOne({
             where: {

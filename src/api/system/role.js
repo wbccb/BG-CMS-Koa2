@@ -21,13 +21,11 @@ router.post("/role", async (ctx) => {
 
     // 第二步：数据库操作
     const role = {
-        remark: result.get("body.remark"),
-        roleId: result.get("body.roleId"),
         roleName: result.get("body.roleName"),
-        roleKey: result.get("body.roleKey"),
+        roleId: result.get("body.roleId"),
+        roleIdName: result.get("body.roleIdName"),
         roleSort: result.get("body.roleSort"),
         permissions: result.get("body.permissions"),
-        admin: result.get("body.admin"),
     };
     // Koa使用全局错误捕获，如果await出错，会被中间件捕获错误
     const res = await Role.create(role);
