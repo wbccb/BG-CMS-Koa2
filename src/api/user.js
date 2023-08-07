@@ -3,10 +3,10 @@
  */
 
 const Router = require("koa-router");
-const { RegisterValidator, LoginValidator } = require("../validator/user");
+const {RegisterValidator, LoginValidator} = require("../validator/user");
 const User = require("../models/user");
 const Role = require("../models/role");
-const { Success, AuthFailedException, HTTP_CODE, HttpException} = require("../lib/http-response");
+const {Success, AuthFailedException, HTTP_CODE, HttpException} = require("../lib/http-response");
 const TokenCheck = require("../middlewares/token-check");
 const {CreateOrUpdateMenuValidator, DeleteValidator} = require("../validator/system");
 const RoleType = require("../config/roleType");
@@ -54,7 +54,7 @@ router.post("/login", async (ctx) => {
         // TODO 如果是token登录，则返回用户信息userId
         const response = new Success("登录成功", {
             token: token,
-            user: user
+            user: user,
         });
         console.log("获取token成功", token);
         ctx.status = 201;
@@ -77,18 +77,18 @@ router.post("/logout", async (ctx) => {
     ctx.body = response.getData();
 });
 
-router.get("/info", async (ctx)=> {
+router.get("/info", async (ctx) => {
     // 根据token获取对应的user数据
 
     // 从token中取出userId
-    const parts = ctx.header.authorization.split(' ');
+    const parts = ctx.header.authorization.split(" ");
     if (parts.length === 2) {
         //取出token
         const token = parts[1];
         const user = await User.getUserFromToken(token);
 
         const success = new Success("获取用户数据成功", {
-            user: user
+            user: user,
         });
 
         ctx.status = 200;
@@ -97,11 +97,10 @@ router.get("/info", async (ctx)=> {
         ctx.status = 200;
         ctx.body = {
             code: HTTP_CODE["用户数据获取失败"],
-            desc: "用户数据获取失败"
-        }
+            desc: "用户数据获取失败",
+        };
     }
 });
-
 
 /**
  * 新增用户管理功能
@@ -160,40 +159,36 @@ router.get("/people/authRole/:id", async (ctx) => {
     // - 系统管理员：普通用户（创建、更新、删除）
     // - 普通用户：没有任何权限
     // 2. 只有一个超级管理员
-    const query = ctx.request.query || {};
+    const params = ctx.params || {};
     let roleArray = [];
-    if (query.id) {
+    debugger;
+    if (params.id) {
         const user = await User.findOne({
             where: {
-                id: query.id,
+                id: params.id,
             },
         });
         // 根据user.roleId进行用户的返回
-        switch (user.roleId) {
+        switch (parseInt(user.roleId)) {
             case RoleType.超级管理员:
+                console.log("检测到你是超级管理员，返回系统管理员和普通用户");
                 // 拿到所有roleId=系统管理员+普通用户
                 // SELECT * FROM post WHERE authorId = 12 OR authorId = 13;
-                roleArray = User.findAll({
+                roleArray = await Role.findAll({
                     where: {
-                        [Op.or]: [
-                            {
-                                roleId: RoleType["系统管理员"],
-                            },
-                            {
-                                roleId: RoleType["普通用户"],
-                            },
-                        ],
+                        [Op.or]: [{roleId: RoleType["系统管理员"]}, {roleId: RoleType["普通用户"]}],
                     },
                 });
                 break;
             case RoleType.系统管理员:
-                roleArray = User.findAll({
+                roleArray = await User.findAll({
                     where: {
                         roleId: RoleType["普通用户"],
                     },
                 });
                 break;
             case RoleType.普通用户:
+                roleArray = [];
                 break;
         }
     }
@@ -228,6 +223,5 @@ router.delete("/people", async (ctx) => {
     // 第三步：返回response结果
     ctx.body = new Success().getData();
 });
-
 
 module.exports = router;

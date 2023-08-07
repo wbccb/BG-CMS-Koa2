@@ -128,7 +128,6 @@ class InitManager {
         for (const role of initRoleArray) {
             await Role.create(role);
         }
-
     }
 
     static async initUser() {
