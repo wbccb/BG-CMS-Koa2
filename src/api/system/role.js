@@ -22,7 +22,7 @@ router.post("/role", async (ctx) => {
     // 第二步：数据库操作
     const role = {
         roleName: result.get("body.roleName"),
-        roleId: result.get("body.roleId"),
+        roleType: result.get("body.roleType"),
         roleIdName: result.get("body.roleIdName"),
         roleSort: result.get("body.roleSort"),
         permissions: result.get("body.permissions"),

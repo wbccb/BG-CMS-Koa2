@@ -110,9 +110,16 @@ router.post("/people", async (ctx) => {
     const result = await new CreateOrUpdateMenuValidator().validate(ctx);
 
     // 第二步：数据库操作
-    const role = {};
+    const user = {
+        name: result.get("body.name"),
+        email: result.get("body.email"),
+        password: result.get("body.password"),
+        roleId: result.get("body.roleId"),
+        status: result.get("body.status"),
+        userId: result.get("body.userId"),
+    };
     // Koa使用全局错误捕获，如果await出错，会被中间件捕获错误
-    const res = await Role.create(role);
+    const res = await User.create(user);
 
     // 第三步：返回response结果
     ctx.body = new Success().getData();
@@ -175,14 +182,14 @@ router.get("/people/authRole/:id", async (ctx) => {
                 // SELECT * FROM post WHERE authorId = 12 OR authorId = 13;
                 roleArray = await Role.findAll({
                     where: {
-                        [Op.or]: [{roleId: RoleType["系统管理员"]}, {roleId: RoleType["普通用户"]}],
+                        [Op.or]: [{roleType: RoleType["系统管理员"]}, {roleType: RoleType["普通用户"]}],
                     },
                 });
                 break;
             case RoleType.系统管理员:
-                roleArray = await User.findAll({
+                roleArray = await Role.findAll({
                     where: {
-                        roleId: RoleType["普通用户"],
+                        roleType: RoleType["普通用户"],
                     },
                 });
                 break;

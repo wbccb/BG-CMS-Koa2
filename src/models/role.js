@@ -30,7 +30,7 @@ Role.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        roleId: DataTypes.INTEGER,
+        roleType: DataTypes.INTEGER,
         roleName: DataTypes.STRING,
         roleIdName: DataTypes.STRING,
         roleSort: DataTypes.INTEGER,

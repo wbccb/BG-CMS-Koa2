@@ -102,8 +102,7 @@ User.init(
         userName: DataTypes.STRING,
         nickName: DataTypes.STRING,
         status: DataTypes.BOOLEAN,
-        roleId: DataTypes.INTEGER,
-        permissions: DataTypes.STRING
+        roleId: DataTypes.INTEGER
     },
     {
         sequelize: mySequelize,
