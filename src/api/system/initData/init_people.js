@@ -1,13 +1,12 @@
-const RoleType = require("../config/roleType");
+const RoleType = require("../../../config/roleType");
 
 module.exports = [
     {
-        userId: "123",
         userName: "用户名",
-        nickName: "昵称",
         email: "188132221@163.com",
+        password: "123456",
         status: true,
         roleId: RoleType["超级管理员"],
-        permissions: ["**_**"]
+        permissions: ["**_**"].join(",")
     }
 ];

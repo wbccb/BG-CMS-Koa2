@@ -1,7 +1,8 @@
 require("module-alias/register");
+const User = require("./models/user");
 const Menu = require("./models/menu");
-const Role = require("./models/role");
 const People = require("./models/people");
+const Role = require("./models/role");
 const Koa = require("koa");
 const parser = require("koa-bodyparser");
 const catchError = require("./middlewares/response-handle-error");
@@ -35,7 +36,10 @@ app.use(jwt({secret: config.security.secretKey}).unless({
 //     await next();
 // });
 
-InitManager.initCore(app); // 路由自动加载，全局错误对象赋值和全局config配置赋值
+setTimeout(()=> {
+    // 先进行数据库的初始化，然后再进行一些配置的初始化
+    InitManager.initCore(app); // 路由自动加载，全局错误对象赋值和全局config配置赋值
+}, 3000);
 
 
 app.listen(3000);

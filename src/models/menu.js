@@ -29,19 +29,19 @@ class Menu extends Model {
 Menu.init(
     {
         menuId: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true,
         },
-        menuName: Sequelize.STRING, // meta.title
-        parentId: Sequelize.INTEGER,
-        orderNum: Sequelize.INTEGER,
-        path: Sequelize.STRING, // 路由路径
-        name: Sequelize.STRING, // 路由名称
-        component: Sequelize.STRING,
-        menuType: Sequelize.STRING,
-        visible: Sequelize.STRING,
-        status: Sequelize.STRING,
+        menuName: DataTypes.STRING, // meta.title
+        parentId: DataTypes.INTEGER,
+        orderNum: DataTypes.INTEGER,
+        path: DataTypes.STRING, // 路由路径
+        name: DataTypes.STRING, // 路由名称
+        component: DataTypes.STRING,
+        menuType: DataTypes.STRING,
+        visible: DataTypes.STRING,
+        status: DataTypes.STRING,
     },
     {
         sequelize: mySequelize,

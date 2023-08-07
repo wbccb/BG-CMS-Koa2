@@ -3,9 +3,9 @@ const requireDirectory = require("require-directory");
 const Menu = require("./models/menu");
 const Role = require("./models/role");
 const People = require("./models/people");
-const initMenuArray = require("./api/init_menu.js");
-const initRoleArray = require("./api/init_role.js");
-const initPeopleArray = require("./api/init_people.js");
+const initMenuArray = require("./api/system/initData/init_menu.js");
+const initRoleArray = require("./api/system/initData/init_role.js");
+const initPeopleArray = require("./api/system/initData/init_people.js");
 
 class InitManager {
     /**
@@ -138,11 +138,7 @@ class InitManager {
         }
         // 从数据中拆分出每一项menu
         for (const people of initPeopleArray) {
-            const newPeople = {
-                ...people,
-                ...{permissions: people.permissions.join(",")}
-            }
-            await People.create(newPeople);
+            await People.create(people);
         }
     }
 

@@ -16,12 +16,6 @@ class RegisterValidator extends CommonValidator {
             new Rule("matches", "密码长度必须在6~22位之间，包含字符、数字和 _ "),
         ];
         this.password2 = this.password1;
-        this.nickName = [
-            new Rule("isLength", "昵称长度必须在4~32之间", {
-                min: 4,
-                max: 32,
-            }),
-        ];
 
         this.validateEmail = async function (ctx) {
             const email = ctx.body.email;

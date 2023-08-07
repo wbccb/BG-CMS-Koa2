@@ -5,7 +5,7 @@
 const Router = require("koa-router");
 const { RegisterValidator, LoginValidator } = require("../validator/user");
 const User = require("../models/user");
-const { Success, AuthFailedException } = require("../lib/http-response");
+const { Success, AuthFailedException, HTTP_CODE} = require("../lib/http-response");
 const TokenCheck = require("../middlewares/token-check");
 const router = new Router({
     prefix: "/user",
@@ -46,11 +46,11 @@ router.post("/login", async (ctx) => {
     // 如果校验通过，则生成token，存储并发放给用户
     if (user) {
         const token = User.generateToken(user.id, TokenCheck.AUSE);
-        // TODO 如果是直接登录，返回token+用户信息userId
+        // TODO 如果是直接登录，返回token+用户信息userId+角色roleId
         // TODO 如果是token登录，则返回用户信息userId
         const response = new Success("登录成功", {
             token: token,
-            userId: user.id
+            user: user
         });
         console.log("获取token成功", token);
         ctx.status = 201;
@@ -73,14 +73,30 @@ router.post("/logout", async (ctx) => {
     ctx.body = response.getData();
 });
 
-router.get("getInfo", async (ctx)=> {
+router.get("/info", async (ctx)=> {
     // 根据token获取对应的user数据
 
-    // TODO 涉及到token放在哪里以及如何获取token以及如何验证token的问题
 
-    const response = new Success("获取用户信息成功");
-    ctx.status = 200;
-    ctx.body = response.getData();
+    // 从token中取出userId
+    const parts = ctx.header.authorization.split(' ');
+    if (parts.length === 2) {
+        //取出token
+        const token = parts[1];
+        const user = await User.getUserFromToken(token);
+
+        const success = new Success("获取用户数据成功", {
+            user: user
+        });
+
+        ctx.status = 200;
+        ctx.body = success.getData();
+    } else {
+        ctx.status = 200;
+        ctx.body = {
+            code: HTTP_CODE["用户数据获取失败"],
+            desc: "用户数据获取失败"
+        }
+    }
 });
 
 module.exports = router;

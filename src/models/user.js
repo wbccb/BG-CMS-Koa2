@@ -49,6 +49,16 @@ class User extends Model {
 
         return token;
     }
+
+    static async getUserFromToken(token) {
+        var decoded = jwt.decode(token);
+        const userId = decoded.userId;
+        const user = await User.findOne({
+            where:  { id: userId }
+        });
+
+        return user;
+    }
 }
 
 User.init(
@@ -58,7 +68,7 @@ User.init(
             primaryKey: true,
             autoIncrement: true,
         },
-        nickname: DataTypes.STRING,
+        userName: DataTypes.STRING,
         email: {
             type: DataTypes.STRING(128),
             unique: true,
@@ -74,6 +84,9 @@ User.init(
                 this.setDataValue("password", psw);
             },
         },
+        status: DataTypes.BOOLEAN,
+        roleId: DataTypes.INTEGER,
+        permissions: DataTypes.STRING
     },
     {
         sequelize: mySequelize,
